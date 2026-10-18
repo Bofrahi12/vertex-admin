@@ -14,10 +14,19 @@ const GH_REPO = process.env.GITHUB_REPO || 'Bofrahi12/vertex-web';
 const DATA_FILE = path.join(__dirname, 'data.json');
 const DEFAULT_CONTENT = require('./default-content.json');
 
+function mergeDefaults(c) {
+  const d = DEFAULT_CONTENT;
+  for (const k of Object.keys(d)) if (c[k] === undefined) c[k] = JSON.parse(JSON.stringify(d[k]));
+  if (Array.isArray(c.projects) && Array.isArray(d.projects)) {
+    const byPid = {}; d.projects.forEach(p => { byPid[p.pid] = p; });
+    c.projects.forEach(p => { const dp = byPid[p.pid]; if (dp) for (const k of Object.keys(dp)) if (p[k] === undefined) p[k] = dp[k]; });
+  }
+  return c;
+}
 function loadContent() {
   try {
     const c = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-    if (c && Array.isArray(c.packs) && Array.isArray(c.projects)) return c;
+    if (c && Array.isArray(c.packs) && Array.isArray(c.projects)) return mergeDefaults(c);
   } catch (e) {}
   return JSON.parse(JSON.stringify(DEFAULT_CONTENT));
 }
@@ -86,6 +95,10 @@ const server = http.createServer(async (req, res) => {
         if (!Array.isArray(c.packs) || c.packs.length < 1 || !Array.isArray(c.projects) || !Array.isArray(c.faq)) return send(res, 400, '{"error":"shape"}', 'application/json');
         for (const p of c.packs) { p.price = Math.max(0, parseInt(p.price, 10) || 0); p.name = String(p.name || '').slice(0, 60); }
         c.whatsapp = String(c.whatsapp || '').replace(/\D/g, '').slice(0, 15);
+        if (c.homeProjects !== undefined && !Array.isArray(c.homeProjects)) return send(res, 400, '{"error":"shape"}', 'application/json');
+        const cleanProj = (arr) => { if (!Array.isArray(arr)) return; for (const p of arr) { p.name = String(p.name || '').slice(0, 90); p.desc = String(p.desc || '').slice(0, 320); p.hidden = !!p.hidden; } };
+        cleanProj(c.projects); cleanProj(c.homeProjects);
+        if (c.texts && typeof c.texts === 'object' && !Array.isArray(c.texts)) { for (const k of Object.keys(c.texts)) c.texts[k] = String(c.texts[k] || '').slice(0, 300); } else c.texts = {};
         content = c; persist();
         let mode = 'local';
         try { mode = await commitToGitHub(); } catch (e) { mode = 'local'; }
@@ -133,7 +146,9 @@ textarea{min-height:64px;resize:vertical}
 <section><h2>التواصل</h2><p class="hint">رقم الواتساب بصيغة دولية بلا + (مثال: 212693981822) — كيتبدل في أزرار الموقع كاملة.</p>
 <label>رقم واتساب</label><input id="wa" inputmode="numeric">
 <label>البريد الإلكتروني</label><input id="em" type="email"></section>
-<section><h2>المشاريع (المعرض)</h2><p class="hint">رتّب بالأزرار ↑ ↓، و«إخفاء» كيحيّد المشروع من الموقع بلا ما يتمسح.</p><div id="projects"></div></section>
+<section><h2>بطاقات الصفحة الرئيسية</h2><p class="hint">هادو هما البطاقات اللي كيبانو في أول الموقع (قسم «الأعمال»). بدّل الاسم والوصف، رتّب بالأزرار ↑ ↓، ولا خفي أي بطاقة.</p><div id="home"></div></section>
+<section><h2>نصوص الصفحة الرئيسية</h2><p class="hint">عناوين ونصوص أقسام الصفحة الرئيسية. ملاحظة: النص المعدّل يظهر بالعربية في كل اللغات حتى تتم ترجمته.</p><div id="texts"></div></section>
+<section><h2>المشاريع (المعرض)</h2><p class="hint">بدّل الاسم والوصف، رتّب بالأزرار ↑ ↓، و«إخفاء» كيحيّد المشروع من المعرض بلا ما يتمسح.</p><div id="projects"></div></section>
 <section><h2>الأسئلة الشائعة</h2><p class="hint">عدّل السؤال والجواب، رتّب، أو أخفِ أي سؤال. ملاحظة: النص المعدّل يظهر بالعربية في كل اللغات حتى تتم ترجمته.</p><div id="faqs"></div></section>
 </main>
 <div id="publish"><span id="status">جاهز</span><button id="pubBtn" type="button">نشر التعديلات</button></div>
@@ -141,16 +156,25 @@ textarea{min-height:64px;resize:vertical}
 var C = null;
 function el(id){ return document.getElementById(id); }
 function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+var TEXT_LABELS = { workTitle: 'عنوان قسم الأعمال', workSub: 'نص قسم الأعمال', svcTitle: 'عنوان الخدمات', svcSub: 'نص الخدمات', priceTitle: 'عنوان الأسعار', procTitle: 'عنوان طريقة العمل', numTitle: 'عنوان الأرقام', aboutTitle: 'عنوان قسم «علينا»', avisTitle: 'عنوان الآراء', faqTitle: 'عنوان الأسئلة الشائعة', contactTitle: 'عنوان التواصل' };
+function projRows(listKey, arr){
+  return (arr || []).map(function(p, i){
+    return '<div class="faqrow' + (p.hidden ? ' off' : '') + '"><label>الاسم</label><input data-pn="' + listKey + ':' + i + '" value="' + esc(p.name) + '">' +
+      '<label>الوصف</label><textarea data-pd="' + listKey + ':' + i + '">' + esc(p.desc || '') + '</textarea>' +
+      '<div class="bar"><button class="mini" data-mv="' + listKey + ':' + i + ':-1">↑</button><button class="mini" data-mv="' + listKey + ':' + i + ':1">↓</button>' +
+      '<button class="mini warn" data-hd="' + listKey + ':' + i + '">' + (p.hidden ? 'إظهار' : 'إخفاء') + '</button><span style="color:#a8a294;font-size:.72rem">' + esc(p.pid) + '</span></div></div>';
+  }).join('');
+}
 function render(){
   el('packs').innerHTML = C.packs.map(function(p, i){
     return '<div class="pack"><div><label>اسم الباقة</label><input data-pack-name="' + i + '" value="' + esc(p.name) + '"></div><div><label>الثمن (درهم)</label><input data-pack-price="' + i + '" type="number" min="0" value="' + p.price + '"></div></div>';
   }).join('');
   el('wa').value = C.whatsapp; el('em').value = C.email;
-  el('projects').innerHTML = C.projects.map(function(p, i){
-    return '<div class="row' + (p.hidden ? ' off' : '') + '"><div class="nm">' + esc(p.name) + '<small>' + esc(p.pid) + '</small></div>' +
-      '<button class="mini" data-pup="' + i + '">↑</button><button class="mini" data-pdn="' + i + '">↓</button>' +
-      '<button class="mini warn" data-phide="' + i + '">' + (p.hidden ? 'إظهار' : 'إخفاء') + '</button></div>';
+  el('home').innerHTML = projRows('homeProjects', C.homeProjects);
+  el('texts').innerHTML = Object.keys(TEXT_LABELS).map(function(k){
+    return '<label>' + TEXT_LABELS[k] + '</label><input data-tx="' + k + '" value="' + esc((C.texts || {})[k] || '') + '">';
   }).join('');
+  el('projects').innerHTML = projRows('projects', C.projects);
   el('faqs').innerHTML = C.faq.map(function(f, i){
     return '<div class="faqrow' + (f.hidden ? ' off' : '') + '"><label>السؤال</label><input data-fq="' + i + '" value="' + esc(f.q) + '">' +
       '<label>الجواب</label><textarea data-fa="' + i + '">' + esc(f.a) + '</textarea>' +
@@ -161,17 +185,20 @@ function render(){
 function collect(){
   C.packs.forEach(function(p, i){ p.name = document.querySelector('[data-pack-name="' + i + '"]').value; p.price = parseInt(document.querySelector('[data-pack-price="' + i + '"]').value, 10) || 0; });
   C.whatsapp = el('wa').value.replace(/\\D/g, ''); C.email = el('em').value;
+  ['projects', 'homeProjects'].forEach(function(k){ (C[k] || []).forEach(function(p, i){ var n = document.querySelector('[data-pn="' + k + ':' + i + '"]'); var d = document.querySelector('[data-pd="' + k + ':' + i + '"]'); if (n) p.name = n.value; if (d) p.desc = d.value; }); });
+  C.texts = C.texts || {}; Object.keys(TEXT_LABELS).forEach(function(k){ var t = document.querySelector('[data-tx="' + k + '"]'); if (t) C.texts[k] = t.value; });
   C.faq.forEach(function(f, i){ f.q = document.querySelector('[data-fq="' + i + '"]').value; f.a = document.querySelector('[data-fa="' + i + '"]').value; });
 }
 function move(arr, i, d){ var j = i + d; if (j < 0 || j >= arr.length) return; var t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
 document.addEventListener('click', function(e){
   var b = e.target.closest('button'); if (!b) return;
-  var acts = [['pup', C && C.projects, -1], ['pdn', C && C.projects, 1], ['fup', C && C.faq, -1], ['fdn', C && C.faq, 1]];
+  if (b.hasAttribute('data-mv')) { collect(); var mp = b.getAttribute('data-mv').split(':'); move(C[mp[0]], parseInt(mp[1], 10), parseInt(mp[2], 10)); render(); return; }
+  if (b.hasAttribute('data-hd')) { collect(); var hp = b.getAttribute('data-hd').split(':'); var it = C[hp[0]][parseInt(hp[1], 10)]; it.hidden = !it.hidden; render(); return; }
+  var acts = [['fup', C && C.faq, -1], ['fdn', C && C.faq, 1]];
   for (var k = 0; k < acts.length; k++){
     var key = 'data-' + acts[k][0];
     if (b.hasAttribute(key)) { collect(); move(acts[k][1], parseInt(b.getAttribute(key), 10), acts[k][2]); render(); return; }
   }
-  if (b.hasAttribute('data-phide')) { collect(); var i = parseInt(b.getAttribute('data-phide'), 10); C.projects[i].hidden = !C.projects[i].hidden; render(); return; }
   if (b.hasAttribute('data-fhide')) { collect(); var j = parseInt(b.getAttribute('data-fhide'), 10); C.faq[j].hidden = !C.faq[j].hidden; render(); return; }
 });
 el('pubBtn').addEventListener('click', function(){
