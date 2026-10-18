@@ -13,6 +13,7 @@ const GH_TOKEN = process.env.GITHUB_TOKEN || '';
 const GH_REPO = process.env.GITHUB_REPO || 'Bofrahi12/vertex-web';
 const DATA_FILE = path.join(__dirname, 'data.json');
 const DEFAULT_CONTENT = require('./default-content.json');
+const DEMO_CATALOG = (() => { try { return require('./demo-catalog.json'); } catch (e) { return {}; } })();
 
 function mergeDefaults(c) {
   const d = DEFAULT_CONTENT;
@@ -85,6 +86,18 @@ const server = http.createServer(async (req, res) => {
       return send(res, 302, '', 'text/plain', { 'Location': '/?e=1' });
     }
     if (u.pathname === '/logout') return send(res, 302, '', 'text/plain', { 'Set-Cookie': 'vxadm=; Path=/; Max-Age=0', 'Location': '/' });
+    if (u.pathname === '/api/demos') {
+      if (!authed(req)) return send(res, 401, '{"error":"auth"}', 'application/json');
+      const list = Object.keys(DEMO_CATALOG).map(pid => ({ pid, name: DEMO_CATALOG[pid].name || pid, count: (DEMO_CATALOG[pid].strings || []).length }));
+      return send(res, 200, JSON.stringify(list), 'application/json; charset=utf-8');
+    }
+    if (u.pathname.indexOf('/api/demo/') === 0) {
+      if (!authed(req)) return send(res, 401, '{"error":"auth"}', 'application/json');
+      const pid = decodeURIComponent(u.pathname.slice(10));
+      const cat = DEMO_CATALOG[pid];
+      if (!cat) return send(res, 404, '{"error":"demo"}', 'application/json');
+      return send(res, 200, JSON.stringify({ pid, name: cat.name || pid, strings: cat.strings || [], edits: (content.demos || {})[pid] || {} }), 'application/json; charset=utf-8');
+    }
     if (u.pathname === '/api/content') {
       if (!authed(req)) return send(res, 401, '{"error":"auth"}', 'application/json');
       if (req.method === 'GET') return send(res, 200, JSON.stringify(content), 'application/json; charset=utf-8');
@@ -99,6 +112,23 @@ const server = http.createServer(async (req, res) => {
         const cleanProj = (arr) => { if (!Array.isArray(arr)) return; for (const p of arr) { p.name = String(p.name || '').slice(0, 90); p.desc = String(p.desc || '').slice(0, 320); p.hidden = !!p.hidden; } };
         cleanProj(c.projects); cleanProj(c.homeProjects);
         if (c.texts && typeof c.texts === 'object' && !Array.isArray(c.texts)) { for (const k of Object.keys(c.texts)) c.texts[k] = String(c.texts[k] || '').slice(0, 300); } else c.texts = {};
+        const cleanDemos = {};
+        if (c.demos && typeof c.demos === 'object' && !Array.isArray(c.demos)) {
+          for (const pid of Object.keys(c.demos)) {
+            if (!DEMO_CATALOG[pid]) continue;
+            const m = c.demos[pid];
+            if (!m || typeof m !== 'object' || Array.isArray(m)) continue;
+            const out = {};
+            for (const k of Object.keys(m)) {
+              const key = String(k).slice(0, 300);
+              const val = String(m[k] || '').slice(0, 300);
+              if (val && val !== key) out[key] = val;
+              if (Object.keys(out).length >= 200) break;
+            }
+            if (Object.keys(out).length) cleanDemos[pid] = out;
+          }
+        }
+        c.demos = cleanDemos;
         content = c; persist();
         let mode = 'local';
         try { mode = await commitToGitHub(); } catch (e) { mode = 'local'; }
@@ -142,12 +172,16 @@ textarea{min-height:64px;resize:vertical}
 </style></head><body>
 <header><b>لوحة تحكم VERTEX WEB</b><span><a href="https://vertex-web-tanger.onrender.com" target="_blank" rel="noopener">معاينة الموقع ↗</a> · <a href="/logout">خروج</a></span></header>
 <main>
+<section><h2>صفحات الموقع كاملة</h2><p class="hint">هنا صفحات موقعك كاملة — اضغط على أي صفحة باش تشوفها كيف كيبانو للزوار.</p><div id="pages" style="display:flex;flex-wrap:wrap;gap:8px"></div></section>
 <section><h2>الأسعار والباقات</h2><p class="hint">بدّل الاسم أو الثمن ثم اضغط «نشر التعديلات». الثمن يتبدل في الموقع كامل (الباقات + سطر الأسعار).</p><div id="packs"></div></section>
 <section><h2>التواصل</h2><p class="hint">رقم الواتساب بصيغة دولية بلا + (مثال: 212693981822) — كيتبدل في أزرار الموقع كاملة.</p>
 <label>رقم واتساب</label><input id="wa" inputmode="numeric">
 <label>البريد الإلكتروني</label><input id="em" type="email"></section>
 <section><h2>بطاقات الصفحة الرئيسية</h2><p class="hint">هادو هما البطاقات اللي كيبانو في أول الموقع (قسم «الأعمال»). بدّل الاسم والوصف، رتّب بالأزرار ↑ ↓، ولا خفي أي بطاقة.</p><div id="home"></div></section>
 <section><h2>نصوص الصفحة الرئيسية</h2><p class="hint">عناوين ونصوص أقسام الصفحة الرئيسية. ملاحظة: النص المعدّل يظهر بالعربية في كل اللغات حتى تتم ترجمته.</p><div id="texts"></div></section>
+<section><h2>تعديل نصوص أي موقع ديمو</h2><p class="hint">اختار أي موقع ديمو وبدّل أي نص فيه (العناوين، الأوصاف، الأثمنة، الأزرار…). خلي الخانة خاوية إلا ما بغيتيش تبدّل النص. التعديلات كتظهر في الموقع الحي من بعد «نشر التعديلات». ملاحظة: في موقع الباشا، أسماء الأطباق وأثمنتها كيبقاو من نظام المنيو ديال الشيف.</p>
+<label>اختار الموقع</label><select id="demoSel" style="width:100%;background:#0a0d14;border:1px solid rgba(240,232,216,.2);border-radius:10px;color:#fff;padding:11px 12px;font-size:.95rem"></select>
+<div id="demoRows" style="margin-top:10px"></div></section>
 <section><h2>المشاريع (المعرض)</h2><p class="hint">بدّل الاسم والوصف، رتّب بالأزرار ↑ ↓، و«إخفاء» كيحيّد المشروع من المعرض بلا ما يتمسح.</p><div id="projects"></div></section>
 <section><h2>الأسئلة الشائعة</h2><p class="hint">عدّل السؤال والجواب، رتّب، أو أخفِ أي سؤال. ملاحظة: النص المعدّل يظهر بالعربية في كل اللغات حتى تتم ترجمته.</p><div id="faqs"></div></section>
 </main>
@@ -188,6 +222,7 @@ function collect(){
   ['projects', 'homeProjects'].forEach(function(k){ (C[k] || []).forEach(function(p, i){ var n = document.querySelector('[data-pn="' + k + ':' + i + '"]'); var d = document.querySelector('[data-pd="' + k + ':' + i + '"]'); if (n) p.name = n.value; if (d) p.desc = d.value; }); });
   C.texts = C.texts || {}; Object.keys(TEXT_LABELS).forEach(function(k){ var t = document.querySelector('[data-tx="' + k + '"]'); if (t) C.texts[k] = t.value; });
   C.faq.forEach(function(f, i){ f.q = document.querySelector('[data-fq="' + i + '"]').value; f.a = document.querySelector('[data-fa="' + i + '"]').value; });
+  collectDemo();
 }
 function move(arr, i, d){ var j = i + d; if (j < 0 || j >= arr.length) return; var t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
 document.addEventListener('click', function(e){
@@ -209,7 +244,37 @@ el('pubBtn').addEventListener('click', function(){
     .then(function(j){ el('status').textContent = j.ok ? 'تم النشر ✓ — الموقع كيتحدث في أقل من دقيقة' : 'وقع مشكل، عاود المحاولة'; })
     .catch(function(){ el('status').textContent = 'وقع مشكل في الاتصال'; });
 });
+var CUR_DEMO = null;
+function collectDemo(){
+  if (!CUR_DEMO || !C) return;
+  var map = {};
+  document.querySelectorAll('[data-dedit]').forEach(function(inp){
+    var orig = inp.getAttribute('data-dedit');
+    var v = inp.value.trim();
+    if (v && v !== orig) map[orig] = v;
+  });
+  C.demos = C.demos || {};
+  if (Object.keys(map).length) C.demos[CUR_DEMO] = map; else delete C.demos[CUR_DEMO];
+}
+function loadDemo(pid){
+  CUR_DEMO = pid;
+  el('demoRows').innerHTML = '<p class="hint">كنحمّلو النصوص…</p>';
+  fetch('/api/demo/' + encodeURIComponent(pid)).then(function(r){ return r.json(); }).then(function(j){
+    el('demoRows').innerHTML = (j.strings || []).map(function(s){
+      return '<div class="faqrow"><div style="color:#a8a294;font-size:.78rem;margin-bottom:4px">' + esc(s) + '</div><input data-dedit="' + esc(s) + '" value="' + esc((j.edits || {})[s] || '') + '" placeholder="النص الجديد — خليه خاوي إلا ما بغيتيش تبدلو"></div>';
+    }).join('') || '<p class="hint">ما لقينا حتى نص قابل للتعديل في هاد الصفحة.</p>';
+  }).catch(function(){ el('demoRows').innerHTML = '<p class="hint">وقع مشكل في التحميل.</p>'; });
+}
+document.addEventListener('change', function(e){ if (e.target && e.target.id === 'demoSel') { collectDemo(); loadDemo(e.target.value); } });
 fetch('/api/content').then(function(r){ return r.json(); }).then(function(j){ C = j; render(); el('status').textContent = 'تم التحميل — عدّل ثم انشر'; });
+fetch('/api/demos').then(function(r){ return r.json(); }).then(function(list){
+  var base = 'https://vertex-web-tanger.onrender.com/';
+  el('pages').innerHTML = '<a class="mini" target="_blank" rel="noopener" href="' + base + '">الصفحة الرئيسية</a>' +
+    '<a class="mini" target="_blank" rel="noopener" href="' + base + 'portfolio.html">المعرض الكامل</a>' +
+    list.map(function(d){ return '<a class="mini" target="_blank" rel="noopener" href="' + base + d.pid + '.html">' + esc(d.name) + '</a>'; }).join('');
+  el('demoSel').innerHTML = list.map(function(d){ return '<option value="' + esc(d.pid) + '">' + esc(d.name) + ' (' + d.count + ' نص)</option>'; }).join('');
+  if (list.length) loadDemo(list[0].pid);
+}).catch(function(){});
 </script></body></html>`;
 
 server.listen(PORT, () => console.log('vertex-admin on ' + PORT));
