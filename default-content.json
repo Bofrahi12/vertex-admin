@@ -27,212 +27,254 @@
   {
    "pid": "demo-immoluxe",
    "name": "Tanja Luxe — عقار فاخر",
-   "hidden": false
+   "hidden": false,
+   "desc": "وكالة عقار فاخر بستايل «Human-Made Luxury»: فيديوهات حقيقية بملء الشاشة وفيلم كيتحكم فيه السكرول."
   },
   {
    "pid": "demo-photo",
    "name": "Atelier Lumière — استوديو تصوير",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع استوديو تصوير احترافي بالفرنسية — معرض أعمال حقيقي وباقات واضحة وحجز فوري."
   },
   {
    "pid": "demo-burger",
    "name": "Smash House — برغر وفاست فود",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع فاست فود بطاقة شبابية ومنيو كامل — الزبون يطلب في دقيقة عبر واتساب."
   },
   {
    "pid": "demo-parfum",
    "name": "دار العطور — عطور فاخرة",
-   "hidden": false
+   "hidden": false,
+   "desc": "بوتيك عطور فاخرة بتصميم ذهبي وكريمي أنيق — تجربة شراء راقية بسلة خدامة."
   },
   {
    "pid": "demo-sport",
    "name": "Tanger Sport — متجر رياضة",
-   "hidden": false
+   "hidden": false,
+   "desc": "متجر معدات رياضية بتصميم طاقي برتقالي — منتجات وتصنيفات وطلب فوري."
   },
   {
    "pid": "demo-gym",
    "name": "نادي القمة — قاعة رياضية",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع قاعة رياضية فاخر بتصميم غامق وطاقة عالية — برامج ومدربون وتسجيل فوري."
   },
   {
    "pid": "demo-barber",
    "name": "LAME D'OR — Barber Club",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع نادي حلاقة رجالية فاخر بطنجة — ثيم غامق وذهبي بتصميم UI UX Pro Max."
   },
   {
    "pid": "demo-marlowe",
    "name": "MARLOWE — Atelier GT Classique",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع ورشة ترميم سيارات كلاسيكية بفيلم سكرول سينمائي كيتبع السيارة من الغطا حتى الطريق."
   },
   {
    "pid": "demo-sabra",
    "name": "SABRA — Jus de Figue de Barbarie",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع عصير الصبار بهيرو كيقرّب ويرجع بالسكرول بحال كيتنفس، ومحتوى كيقنع الزبون يشري."
   },
   {
    "pid": "demo-chroma",
    "name": "CHROMA — Mode Couleur",
-   "hidden": false
+   "hidden": false,
+   "desc": "متجر أزياء بالألوان الجريئة: كاروسيل ثلاثي الأبعاد ولوكبوك كيتحرك مع السكرول."
   },
   {
    "pid": "demo-solenne",
    "name": "SOLENNE — Haute Horlogerie",
-   "hidden": false
+   "hidden": false,
+   "desc": "دار ساعات بفيلم سكرول من 60 إطار كيتبع كل حركة ديال الماكينة."
   },
   {
    "pid": "demo-polaire",
    "name": "POLAIRE — Lunettes de Ski",
-   "hidden": false
+   "hidden": false,
+   "desc": "علامة نظارات تزلج بفيلم سكرول من القمة حتى العدسة."
   },
   {
    "pid": "demo-ondine",
    "name": "ONDINE — Joaillerie",
-   "hidden": false
+   "hidden": false,
+   "desc": "دار مجوهرات بحركة كاميرا واحدة كتغوص من الماء حتى الخاتم."
   },
   {
    "pid": "demo-noctis",
    "name": "NOCTIS — Bagues Grenat",
-   "hidden": false
+   "hidden": false,
+   "desc": "دار خواتم غارنيت بهيرو مثبّت كيقرّب اليد حتى كتملا الشاشة."
   },
   {
    "pid": "demo-torra",
    "name": "TORRA — Torréfacteur & Café",
-   "hidden": false
+   "hidden": false,
+   "desc": "محمصة ومقهى بطنجة: القهوة كتتحرك في كل قسم من الموقع."
   },
   {
    "pid": "demo-doner",
    "name": "THE DÖNER — Restaurant Expérience",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع مطعم دونر كامل بستايل المواصفات التقنية: سبعة أقسام سينمائية بالسكرول من المشواة حتى الطلب — بحال الفيديو تماماً."
   },
   {
    "pid": "demo-bacha",
    "name": "مطعم الباشا — الشيف أيوب بنعمر",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع لزبون حقيقي: مطعم الباشا ديال الشيف أيوب بنعمر في البرانص 2 بطنجة (+51 ألف متابع على إنستغرام) — صورتو في الواجهة بـ3D، كتالوغ كامل من قائمتو الحقيقية، والطلب كيوصل مباشرة لواتساب المطعم."
   },
   {
    "pid": "demo-nour",
    "name": "NOUR COCHES — كراء السيارات بطنجة",
-   "hidden": false
+   "hidden": false,
+   "desc": "نموذج موقع لوكالة نور كوتشيس في الجيراري 1 بطنجة (+105 آلاف متابع على إنستغرام): الأسطول الحقيقي ديالهم — من Clio 5 حتى Tucson 2026 — ولّى كيتشاف وكيتحجز من بلاصة وحدة، بلا ما يبقى الزبون يعيّط غير باش يعرف شنو متوفر."
   },
   {
    "pid": "demo-stride",
    "name": "STRIDE — Boutique Sport 3D",
-   "hidden": false
+   "hidden": false,
+   "desc": "متجر رياضي بطنجة كيبيع بالفيديو: المنتجات كتدور وتطفو بثلاثي الأبعاد وسط التيليفون، والطلب كيتمم بواتساب والدفع عند الاستلام."
   },
   {
    "pid": "demo-residence",
    "name": "AZUR Résidences — Programme Neuf",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع مشروع سكني جديد بفكرة وحدة: فيلم واحد طويل كيتبنى بالسكرول — من الرافعة والورش حتى تسليم المفاتيح."
   },
   {
    "pid": "demo-cinema",
    "name": "VERTEX WEB — Cinematic Portfolio",
-   "hidden": false
+   "hidden": false,
+   "desc": "بورتفوليو ستوديو إبداعي بستايل أفلام 2026: تجربة سينمائية كاملة كتتلعب بالسكرول — سبعة مشاهد من الافتتاح حتى النداء الأخير."
   },
   {
    "pid": "demo-atlas",
    "name": "ATLAS ENERGY — Immersive 2026",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع منتج بستايل «Websites in 2026»: فيلم كامل كيتحكم فيه السكرول — بحال المواقع العالمية اللي كتربح الجوائز."
   },
   {
    "pid": "demo-resto",
    "name": "Le Jasmin",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع مطعم مغربي كامل بالفرنسية — نموذج جاهز لأي مطعم."
   },
   {
    "pid": "capimmo-tanger",
    "name": "Cap Immo Tanger",
-   "hidden": false
+   "hidden": false,
+   "desc": "سوق عقارات متكامل لوكالة بطنجة، يتجدد يومياً بإعلانات متحقق منها."
   },
   {
    "pid": "tradeproacademy",
    "name": "TradePro Academy",
-   "hidden": false
+   "hidden": false,
+   "desc": "منصة دورات تداول كاملة بدومين خاص وقاعدة بيانات حقيقية."
   },
   {
    "pid": "localboost-ai-site",
    "name": "LocalBoost AI",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع تسويقي لخدمة ذكاء اصطناعي مع إضافة ووردبريس مرافقة."
   },
   {
    "pid": "tanger-safe-buy",
    "name": "Tanger Safe Buy",
-   "hidden": false
+   "hidden": false,
+   "desc": "صفحة هبوط لمشروع «عقار المغرب بلا نصب» موجهة للجالية المغربية بالخارج."
   },
   {
    "pid": "chef-patisserie-tanger",
    "name": "باتيسري سيهام — Chef Pâtisserie Tanger",
-   "hidden": false
+   "hidden": false,
+   "desc": "متجر حلويات كامل لشيف بطنجة: التشيز كيك نجم الواجهة، كتالوج بصور حقيقية، والطلب كيوصل مباشرة لواتساب الشيف."
   },
   {
    "pid": "demo-mode",
    "name": "Atlas Mode",
-   "hidden": false
+   "hidden": false,
+   "desc": "متجر إلكتروني متكامل لعلامة ملابس — نموذج كامل ببيانات وأزرار خدامة."
   },
   {
    "pid": "demo-cafe",
    "name": "مقهى الأصالة",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع مقهى مختص متكامل — قائمة كاملة وطلب عبر واتساب."
   },
   {
    "pid": "demo-location",
    "name": "Tangier Drive",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع وكالة كراء سيارات بالفرنسية — أسطول وحجز بالتواريخ."
   },
   {
    "pid": "demo-dentaire",
    "name": "Clinique Dentaire Sourire",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع عيادة أسنان بالفرنسية — خدمات وطلب موعد فوري."
   },
   {
    "pid": "demo-spa",
    "name": "واحة الجمال",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع صالون نسائي وسبا متكامل — خدمات وباقات وحجز."
   },
   {
    "pid": "demo-patisserie",
    "name": "حلويات النخبة",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع محل حلويات متكامل — منتجات وطلب فوري وكعكات أعراس."
   },
   {
    "pid": "demo-riad",
    "name": "Riad Jasmin",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع رياض في المدينة القديمة بالفرنسية — غرف وحجز."
   },
   {
    "pid": "demo-fetes",
    "name": "قاعة الياسمين للأفراح",
-   "hidden": false
+   "hidden": false,
+   "desc": "موقع قاعة أفراح فاخرة — باقات وطلب توفر حسب التاريخ."
   },
   {
    "pid": "mksb-demo",
    "name": "MKSB Voyage",
-   "hidden": false
+   "hidden": false,
+   "desc": "نموذج صايب ببيانات وكالة أسفار حقيقية بطنجة طلبت عرضاً."
   },
   {
    "pid": "bermijou-demo",
    "name": "Bermijou Shop",
-   "hidden": false
+   "hidden": false,
+   "desc": "نموذج متجر ملابس رياضية صايب لزبون بمنتجاته الحقيقية."
   },
   {
    "pid": "nojom-demo",
    "name": "Studio Nojom",
-   "hidden": false
+   "hidden": false,
+   "desc": "نموذج صايب لاستوديو تصوير حقيقي بطنجة طلب يشوف الأمثلة."
   },
   {
    "pid": "safouane-demo",
    "name": "Centre Safouane — مركز لغات",
-   "hidden": false
+   "hidden": false,
+   "desc": "نموذج موقع مقترح لمركز لغات وتكوين بطنجة — مسار الألمانية والشهادات والتسجيل عبر واتساب."
   },
   {
    "pid": "studio31-demo",
    "name": "Studio 31 — Salon de beauté",
-   "hidden": false
+   "hidden": false,
+   "desc": "نموذج موقع ثلاثي الأبعاد مقترح لصالون ستوديو 31 بسوكو ألتو — الخدمات والمعرض وحجز عبر واتساب وقسم خاص بسمعة Google والتقييمات."
   },
   {
    "pid": "iki-demo",
    "name": "Groupe IKI — Instituts Ibn Khaldoun",
-   "hidden": false
+   "hidden": false,
+   "desc": "نموذج موقع مؤسساتي مقترح لمجموعة معاهد ابن خلدون بطنجة — الدبلومات من التقني حتى الماستر الأوروبي ونموذج توجيه وتسجيل عبر واتساب."
   }
  ],
  "faq": [
@@ -308,5 +350,56 @@
    "a": "نقدرو نبداو باللي عندك، وحساب مدة التسليم كيبدا من نهار يكتمل المحتوى. إلا بغيتينا نعتنيو بكتابة المحتوى أو التصوير، هادي خدمات إضافية كنحسبوها باتفاق منفصل قبل ما نبداو.",
    "hidden": false
   }
- ]
+ ],
+ "homeProjects": [
+  {
+   "pid": "capimmo-tanger",
+   "name": "Cap Immo Tanger",
+   "desc": "سوق عقارات يتجدد يومياً — بحث وفلاتر وتواصل واتساب لكل عقار.",
+   "hidden": false
+  },
+  {
+   "pid": "tradeproacademy",
+   "name": "TradePro Academy",
+   "desc": "منصة دورات كاملة — حسابات طلاب، دفع، وشهادات.",
+   "hidden": false
+  },
+  {
+   "pid": "chef-patisserie-tanger",
+   "name": "باتيسري سيهام",
+   "desc": "متجر حلويات كامل — كتالوج بصور حقيقية وطلب بضغطة وحدة في واتساب، مع تجربة 3D وفيلم بالسكرول.",
+   "hidden": false
+  },
+  {
+   "pid": "demo-burger",
+   "name": "Smash House — Expérience 3D",
+   "desc": "واجهة تحريرية سينمائية: شاشات وبطاقات في فضاء ثلاثي الأبعاد.",
+   "hidden": false
+  },
+  {
+   "pid": "demo-resto",
+   "name": "Le Jasmin",
+   "desc": "موقع مطعم كامل بتجربة 3D — منيو وحجز طاولة عبر واتساب.",
+   "hidden": false
+  },
+  {
+   "pid": "demo-mode",
+   "name": "Atlas Mode",
+   "desc": "متجر ملابس متكامل — سلة شراء وطلب عبر واتساب.",
+   "hidden": false
+  }
+ ],
+ "texts": {
+  "workTitle": "أعمال حقيقية، شغالة دابا",
+  "svcTitle": "خدماتنا — اختار وحدة",
+  "priceTitle": "أسعار واضحة، بلا مفاجآت",
+  "procTitle": "طريقة العمل",
+  "numTitle": "أرقام موحّدة، بلا مبالغة",
+  "aboutTitle": "استوديو من طنجة، بمعايير العالم",
+  "avisTitle": "شنو قالوا علينا؟",
+  "faqTitle": "الأسئلة الشائعة",
+  "contactTitle": "طلب عرض ثمن مجاني",
+  "workSub": "مشاريع منشورة ونماذج كاملة — مرّر باش تسافر بيناتهم، والمعرض الكامل فيه 42 عملاً.",
+  "svcSub": "مرّر أو ضغط على أي خدمة باش تشوف التفاصيل والمثال الحي ديالها."
+ }
 }
