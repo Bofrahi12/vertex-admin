@@ -1,0 +1,312 @@
+{
+ "packs": [
+  {
+   "id": "landing",
+   "name": "صفحة هبوط",
+   "price": 900
+  },
+  {
+   "id": "vitrine",
+   "name": "موقع تعريفي",
+   "price": 1900
+  },
+  {
+   "id": "store",
+   "name": "متجر إلكتروني",
+   "price": 4900
+  },
+  {
+   "id": "flagship",
+   "name": "موقع سينمائي بنظام طلبات",
+   "price": 8000
+  }
+ ],
+ "whatsapp": "212693981822",
+ "email": "mounir.boufrahi90@gmail.com",
+ "projects": [
+  {
+   "pid": "demo-immoluxe",
+   "name": "Tanja Luxe — عقار فاخر",
+   "hidden": false
+  },
+  {
+   "pid": "demo-photo",
+   "name": "Atelier Lumière — استوديو تصوير",
+   "hidden": false
+  },
+  {
+   "pid": "demo-burger",
+   "name": "Smash House — برغر وفاست فود",
+   "hidden": false
+  },
+  {
+   "pid": "demo-parfum",
+   "name": "دار العطور — عطور فاخرة",
+   "hidden": false
+  },
+  {
+   "pid": "demo-sport",
+   "name": "Tanger Sport — متجر رياضة",
+   "hidden": false
+  },
+  {
+   "pid": "demo-gym",
+   "name": "نادي القمة — قاعة رياضية",
+   "hidden": false
+  },
+  {
+   "pid": "demo-barber",
+   "name": "LAME D'OR — Barber Club",
+   "hidden": false
+  },
+  {
+   "pid": "demo-marlowe",
+   "name": "MARLOWE — Atelier GT Classique",
+   "hidden": false
+  },
+  {
+   "pid": "demo-sabra",
+   "name": "SABRA — Jus de Figue de Barbarie",
+   "hidden": false
+  },
+  {
+   "pid": "demo-chroma",
+   "name": "CHROMA — Mode Couleur",
+   "hidden": false
+  },
+  {
+   "pid": "demo-solenne",
+   "name": "SOLENNE — Haute Horlogerie",
+   "hidden": false
+  },
+  {
+   "pid": "demo-polaire",
+   "name": "POLAIRE — Lunettes de Ski",
+   "hidden": false
+  },
+  {
+   "pid": "demo-ondine",
+   "name": "ONDINE — Joaillerie",
+   "hidden": false
+  },
+  {
+   "pid": "demo-noctis",
+   "name": "NOCTIS — Bagues Grenat",
+   "hidden": false
+  },
+  {
+   "pid": "demo-torra",
+   "name": "TORRA — Torréfacteur & Café",
+   "hidden": false
+  },
+  {
+   "pid": "demo-doner",
+   "name": "THE DÖNER — Restaurant Expérience",
+   "hidden": false
+  },
+  {
+   "pid": "demo-bacha",
+   "name": "مطعم الباشا — الشيف أيوب بنعمر",
+   "hidden": false
+  },
+  {
+   "pid": "demo-nour",
+   "name": "NOUR COCHES — كراء السيارات بطنجة",
+   "hidden": false
+  },
+  {
+   "pid": "demo-stride",
+   "name": "STRIDE — Boutique Sport 3D",
+   "hidden": false
+  },
+  {
+   "pid": "demo-residence",
+   "name": "AZUR Résidences — Programme Neuf",
+   "hidden": false
+  },
+  {
+   "pid": "demo-cinema",
+   "name": "VERTEX WEB — Cinematic Portfolio",
+   "hidden": false
+  },
+  {
+   "pid": "demo-atlas",
+   "name": "ATLAS ENERGY — Immersive 2026",
+   "hidden": false
+  },
+  {
+   "pid": "demo-resto",
+   "name": "Le Jasmin",
+   "hidden": false
+  },
+  {
+   "pid": "capimmo-tanger",
+   "name": "Cap Immo Tanger",
+   "hidden": false
+  },
+  {
+   "pid": "tradeproacademy",
+   "name": "TradePro Academy",
+   "hidden": false
+  },
+  {
+   "pid": "localboost-ai-site",
+   "name": "LocalBoost AI",
+   "hidden": false
+  },
+  {
+   "pid": "tanger-safe-buy",
+   "name": "Tanger Safe Buy",
+   "hidden": false
+  },
+  {
+   "pid": "chef-patisserie-tanger",
+   "name": "باتيسري سيهام — Chef Pâtisserie Tanger",
+   "hidden": false
+  },
+  {
+   "pid": "demo-mode",
+   "name": "Atlas Mode",
+   "hidden": false
+  },
+  {
+   "pid": "demo-cafe",
+   "name": "مقهى الأصالة",
+   "hidden": false
+  },
+  {
+   "pid": "demo-location",
+   "name": "Tangier Drive",
+   "hidden": false
+  },
+  {
+   "pid": "demo-dentaire",
+   "name": "Clinique Dentaire Sourire",
+   "hidden": false
+  },
+  {
+   "pid": "demo-spa",
+   "name": "واحة الجمال",
+   "hidden": false
+  },
+  {
+   "pid": "demo-patisserie",
+   "name": "حلويات النخبة",
+   "hidden": false
+  },
+  {
+   "pid": "demo-riad",
+   "name": "Riad Jasmin",
+   "hidden": false
+  },
+  {
+   "pid": "demo-fetes",
+   "name": "قاعة الياسمين للأفراح",
+   "hidden": false
+  },
+  {
+   "pid": "mksb-demo",
+   "name": "MKSB Voyage",
+   "hidden": false
+  },
+  {
+   "pid": "bermijou-demo",
+   "name": "Bermijou Shop",
+   "hidden": false
+  },
+  {
+   "pid": "nojom-demo",
+   "name": "Studio Nojom",
+   "hidden": false
+  },
+  {
+   "pid": "safouane-demo",
+   "name": "Centre Safouane — مركز لغات",
+   "hidden": false
+  },
+  {
+   "pid": "studio31-demo",
+   "name": "Studio 31 — Salon de beauté",
+   "hidden": false
+  },
+  {
+   "pid": "iki-demo",
+   "name": "Groupe IKI — Instituts Ibn Khaldoun",
+   "hidden": false
+  }
+ ],
+ "faq": [
+  {
+   "id": "f1",
+   "q": "شحال كيدير الوقت باش يوجد الموقع؟",
+   "a": "من 7 حتى 14 يوماً حسب النوع: صفحة الهبوط 7 أيام، الموقع التعريفي 10 أيام، والمتجر الإلكتروني 14 يوماً.",
+   "hidden": false
+  },
+  {
+   "id": "f2",
+   "q": "واش كتخدمو مع مشاريع خارج طنجة؟",
+   "a": "نعم — كنخدمو مع مشاريع في المغرب كامل وعن بعد: التواصل والمتابعة كيكونو عبر واتساب ومكالمات، والتسليم بنفس الطريقة المنظمة.",
+   "hidden": false
+  },
+  {
+   "id": "f3",
+   "q": "واش تقدرو تعاودو تصميم موقع موجود؟",
+   "a": "نعم — خدمة «تحسين موقع موجود» كتشمل إعادة تصميم عصرية كاملة، تحسين السرعة وتجربة الهاتف، وتحسين الظهور في Google.",
+   "hidden": false
+  },
+  {
+   "id": "f4",
+   "q": "واش كتوفرو المحتوى والصور؟",
+   "a": "كنعاونوك في تنظيم المحتوى واختيار الصور المناسبة، وكنوجّهو بالضبط شنو نحتاجو منك (نصوص، صور، أثمنة) باش الموقع يوجد بسرعة وبلا تعطيل.",
+   "hidden": false
+  },
+  {
+   "id": "f5",
+   "q": "واش الموقع بالعربية والفرنسية؟",
+   "a": "بجوج — كنصايبو الموقع باللغة اللي كتناسب زبنائك: العربية، الفرنسية، ولا نسختين مع بعض.",
+   "hidden": false
+  },
+  {
+   "id": "f6",
+   "q": "واش المتجر كيدعم واتساب والدفع الإلكتروني؟",
+   "a": "نعم — الطلب عبر واتساب هو الأساس في متاجرنا حيت هو اللي خدام مزيان في المغرب، وكنربطو حتى وسائل الدفع الإلكتروني المتاحة إضافة للدفع عند الاستلام.",
+   "hidden": false
+  },
+  {
+   "id": "f7",
+   "q": "شكون كيخلص الدومين والاستضافة؟",
+   "a": "الاستضافة الأساسية مشمولة في الثمن. الدومين (اسم النطاق) كيكون على العميل وكيبقى ملكو: حوالي 100–150 درهم في السنة، وكنعاونوك في اختيارو وربطو.",
+   "hidden": false
+  },
+  {
+   "id": "f8",
+   "q": "واش نقدر نسير الموقع بنفسي من بعد الإطلاق؟",
+   "a": "نعم — كتحصل على تكوين على الاستعمال عند التسليم، وزيد 30 يوم دعم مجاني: إصلاحات، تعديلات بسيطة، وأي سؤال عندك.",
+   "hidden": false
+  },
+  {
+   "id": "f9",
+   "q": "كيفاش كنخلص؟",
+   "a": "بكل بساطة: 50% عند بداية العمل و50% بعد التسليم — بلا ما تخلص الباقي حتى تشوف الموقع حي ويعجبك.",
+   "hidden": false
+  },
+  {
+   "id": "f10",
+   "q": "كيفاش كنبداو مشروع؟",
+   "a": "عمر استمارة «طلب عرض ثمن» أو صيفط لينا في واتساب فكرة المشروع — وغادي نجاوبوك في نفس اليوم بأسئلة دقيقة ثم عرض ثمن واضح ومكتوب، بلا التزام.",
+   "hidden": false
+  },
+  {
+   "id": "f11",
+   "q": "واش الدومين والموقع كيبقاو ديالي؟",
+   "a": "إيه، بالكامل. الدومين كيتسجّل باسمك وعلى حسابك (حوالي 100-150 درهم/سنة)، وبعد تسديد ثمن المشروع كاملاً ملفات موقعك ومحتواه كيبقاو ملكاً ليك — تقدر تنقلهم لأي استضافة أخرى في أي وقت.",
+   "hidden": false
+  },
+  {
+   "id": "f12",
+   "q": "ما عنديش النصوص والصور واجدين، شنو نعمل؟",
+   "a": "نقدرو نبداو باللي عندك، وحساب مدة التسليم كيبدا من نهار يكتمل المحتوى. إلا بغيتينا نعتنيو بكتابة المحتوى أو التصوير، هادي خدمات إضافية كنحسبوها باتفاق منفصل قبل ما نبداو.",
+   "hidden": false
+  }
+ ]
+}
