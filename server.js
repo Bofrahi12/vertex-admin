@@ -8,9 +8,24 @@ const crypto = require('crypto');
 
 const PORT = process.env.PORT || 3000;
 const PASSWORD = process.env.ADMIN_PASSWORD || '';
-const SECRET = process.env.SESSION_SECRET || 'dev-secret-change-me';
+// F-02 fix (audit 2026-10-19): fail closed — no hardcoded fallback secret.
+// A missing SESSION_SECRET must stop the service, never silently weaken auth.
+const SECRET = process.env.SESSION_SECRET || '';
+if (!SECRET) { console.error('FATAL: SESSION_SECRET env var is not set — refusing to start'); process.exit(1); }
+if (!PASSWORD) console.warn('WARN: ADMIN_PASSWORD env var is not set — login is disabled');
 const GH_TOKEN = process.env.GITHUB_TOKEN || '';
 const GH_REPO = process.env.GITHUB_REPO || 'Bofrahi12/vertex-web';
+const SESSION_MS = 7 * 24 * 3600 * 1000; // F-03 fix: session lifetime 7 days (was 30)
+// F-10 rule: `content` is served publicly at /content.json AND committed to a
+// public GitHub repo. NEVER add a non-public field to the content object.
+
+function nowISO() { return new Date().toISOString(); }
+function logEvent(msg) { console.log('[' + nowISO() + '] ' + msg); }
+function logError(msg) { console.error('[' + nowISO() + '] ' + msg); }
+function clientIP(req) {
+  const xff = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+  return xff || (req.socket && req.socket.remoteAddress) || 'unknown';
+}
 const DATA_FILE = path.join(__dirname, 'data.json');
 const DEFAULT_CONTENT = require('./default-content.json');
 const DEMO_CATALOG = (() => { try { return require('./demo-catalog.json'); } catch (e) { return {}; } })();
@@ -28,33 +43,59 @@ function loadContent() {
   try {
     const c = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
     if (c && Array.isArray(c.packs) && Array.isArray(c.projects)) return mergeDefaults(c);
-  } catch (e) {}
+  } catch (e) { if (fs.existsSync(DATA_FILE)) logError('content: data.json unreadable, using defaults (' + e.message + ')'); }
   return JSON.parse(JSON.stringify(DEFAULT_CONTENT));
 }
 let content = loadContent();
-function persist() { try { fs.writeFileSync(DATA_FILE, JSON.stringify(content, null, 1)); } catch (e) {} }
+function persist() { try { fs.writeFileSync(DATA_FILE, JSON.stringify(content, null, 1)); } catch (e) { logError('persist failed: ' + e.message); } }
 
 async function commitToGitHub() {
   if (!GH_TOKEN) return 'local';
   const api = 'https://api.github.com/repos/' + GH_REPO + '/contents/site-content.json';
   const headers = { 'Authorization': 'Bearer ' + GH_TOKEN, 'Accept': 'application/vnd.github+json', 'User-Agent': 'vertex-admin', 'Content-Type': 'application/json' };
   let sha = null;
-  try { const r = await fetch(api, { headers }); if (r.ok) sha = (await r.json()).sha; } catch (e) {}
+  try { const r = await fetch(api, { headers }); if (r.ok) sha = (await r.json()).sha; } catch (e) { logError('github sha fetch failed: ' + e.message); }
   const body = { message: 'Admin panel: تحديث محتوى الموقع', content: Buffer.from(JSON.stringify(content, null, 1), 'utf8').toString('base64') };
   if (sha) body.sha = sha;
   const r = await fetch(api, { method: 'PUT', headers, body: JSON.stringify(body) });
-  if (!r.ok) throw new Error('github ' + r.status);
+  if (!r.ok) { logError('github commit failed: HTTP ' + r.status); throw new Error('github ' + r.status); }
   return 'github';
 }
 
 function sign(v) { return crypto.createHmac('sha256', SECRET).update(v).digest('hex'); }
-function makeCookie() { const exp = String(Date.now() + 30 * 24 * 3600 * 1000); return exp + '.' + sign(exp); }
+function makeCookie() { const exp = String(Date.now() + SESSION_MS); return exp + '.' + sign(exp); }
 function authed(req) {
   const raw = (req.headers.cookie || '').split(';').map(s => s.trim()).find(s => s.indexOf('vxadm=') === 0);
   if (!raw) return false;
   const parts = raw.slice(6).split('.');
-  if (parts.length !== 2 || sign(parts[0]) !== parts[1]) return false;
+  if (parts.length !== 2) return false;
+  // F-07 fix: constant-time HMAC comparison (was !==).
+  const a = Buffer.from(sign(parts[0])), b = Buffer.from(parts[1]);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return false;
   return Date.now() < parseInt(parts[0], 10);
+}
+// F-01 fix: per-IP login throttling (in-memory) — 5 failures lock the IP for 15 minutes.
+const LOGIN_MAX_FAILS = 5;
+const LOGIN_LOCK_MS = 15 * 60 * 1000;
+const loginAttempts = new Map(); // ip -> { fails, lockedUntil }
+function loginLocked(ip) {
+  const rec = loginAttempts.get(ip);
+  return !!(rec && rec.lockedUntil && Date.now() < rec.lockedUntil);
+}
+function loginFailed(ip) {
+  const rec = loginAttempts.get(ip) || { fails: 0, lockedUntil: 0 };
+  rec.fails += 1;
+  if (rec.fails >= LOGIN_MAX_FAILS) { rec.lockedUntil = Date.now() + LOGIN_LOCK_MS; rec.fails = 0; logEvent('login LOCKED ip=' + ip + ' (15 min)'); }
+  loginAttempts.set(ip, rec);
+}
+function loginSucceeded(ip) { loginAttempts.delete(ip); }
+// F-09 fix: state-changing POSTs must be same-origin (or carry our AJAX header).
+// Requests without an Origin header (non-browser clients) still need the session cookie.
+function sameOriginPost(req) {
+  if (req.headers['x-requested-with'] === 'XMLHttpRequest') return true;
+  const origin = req.headers.origin;
+  if (!origin) return true;
+  try { return new URL(origin).host === req.headers.host; } catch (e) { return false; }
 }
 function readBody(req) {
   return new Promise(res => {
@@ -63,13 +104,22 @@ function readBody(req) {
     req.on('end', () => res(b));
   });
 }
+// F-04 fix: security headers on every response. The CSP fits the panel pages:
+// all CSS/JS is inline, data is fetched same-origin, no external resources.
+const CSP = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'";
 function send(res, code, body, type, extra) {
-  const headers = { 'Content-Type': type || 'text/plain; charset=utf-8' };
+  const headers = {
+    'Content-Type': type || 'text/plain; charset=utf-8',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'no-referrer',
+    'Content-Security-Policy': CSP
+  };
   if (extra) Object.assign(headers, extra);
   res.writeHead(code, headers); res.end(body);
 }
 
-const LOGIN_HTML = '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>لوحة تحكم VERTEX WEB</title><style>body{background:#07080c;color:#f2efe9;font-family:system-ui,sans-serif;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}.box{background:#0c1017;border:1px solid rgba(215,164,65,.45);border-radius:18px;padding:30px 26px;width:min(92vw,360px);text-align:center}h1{color:#f0c569;font-size:1.3rem;margin:0 0 6px}p{color:#a8a294;font-size:.88rem}input{width:100%;box-sizing:border-box;background:#0a0d14;border:1px solid rgba(240,232,216,.2);border-radius:10px;color:#fff;padding:13px;font-size:1rem;margin:14px 0}button{width:100%;background:#d7a441;color:#191204;border:0;border-radius:10px;padding:13px;font-size:1rem;font-weight:800;cursor:pointer}.err{color:#ff9c9c;min-height:1.2em;font-size:.85rem}</style></head><body><form class="box" method="POST" action="/login"><h1>VERTEX WEB</h1><p>لوحة تحكم الموقع — خاصة بصاحب الموقع</p><div class="err" id="err"></div><input type="password" name="password" placeholder="كلمة السر" autocomplete="current-password" required><button type="submit">دخول</button></form><script>if (location.search.indexOf("e=1") > -1) document.getElementById("err").textContent = "كلمة السر غير صحيحة";</script></body></html>';
+const LOGIN_HTML = '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>لوحة تحكم VERTEX WEB</title><style>body{background:#07080c;color:#f2efe9;font-family:system-ui,sans-serif;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}.box{background:#0c1017;border:1px solid rgba(215,164,65,.45);border-radius:18px;padding:30px 26px;width:min(92vw,360px);text-align:center}h1{color:#f0c569;font-size:1.3rem;margin:0 0 6px}p{color:#a8a294;font-size:.88rem}input{width:100%;box-sizing:border-box;background:#0a0d14;border:1px solid rgba(240,232,216,.2);border-radius:10px;color:#fff;padding:13px;font-size:1rem;margin:14px 0}button{width:100%;background:#d7a441;color:#191204;border:0;border-radius:10px;padding:13px;font-size:1rem;font-weight:800;cursor:pointer}.err{color:#ff9c9c;min-height:1.2em;font-size:.85rem}</style></head><body><form class="box" method="POST" action="/login"><h1>VERTEX WEB</h1><p>لوحة تحكم الموقع — خاصة بصاحب الموقع</p><div class="err" id="err"></div><input type="password" name="password" placeholder="كلمة السر" autocomplete="current-password" required><button type="submit">دخول</button></form><script>var q = location.search; if (q.indexOf("e=1") > -1) document.getElementById("err").textContent = "كلمة السر غير صحيحة"; else if (q.indexOf("e=2") > -1) document.getElementById("err").textContent = "محاولات كثيرة — عاود المحاولة بعد 15 دقيقة";</script></body></html>';
 
 const server = http.createServer(async (req, res) => {
   const u = new URL(req.url, 'http://x');
@@ -79,10 +129,22 @@ const server = http.createServer(async (req, res) => {
     }
     if (u.pathname === '/health') return send(res, 200, 'ok');
     if (u.pathname === '/login' && req.method === 'POST') {
+      const ip = clientIP(req);
+      if (!sameOriginPost(req)) { logEvent('login BLOCKED (origin) ip=' + ip); return send(res, 403, 'forbidden'); }
+      if (loginLocked(ip)) {
+        logEvent('login BLOCKED (locked) ip=' + ip);
+        return send(res, 302, '', 'text/plain', { 'Location': '/?e=2' });
+      }
       const body = await readBody(req);
       const pw = new URLSearchParams(body).get('password') || '';
       const ok = PASSWORD && pw.length === PASSWORD.length && crypto.timingSafeEqual(Buffer.from(pw), Buffer.from(PASSWORD));
-      if (ok) return send(res, 302, '', 'text/plain', { 'Set-Cookie': 'vxadm=' + makeCookie() + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=2592000', 'Location': '/' });
+      if (ok) {
+        loginSucceeded(ip);
+        logEvent('login SUCCESS ip=' + ip);
+        return send(res, 302, '', 'text/plain', { 'Set-Cookie': 'vxadm=' + makeCookie() + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=' + Math.floor(SESSION_MS / 1000), 'Location': '/' });
+      }
+      loginFailed(ip);
+      logEvent('login FAIL ip=' + ip);
       return send(res, 302, '', 'text/plain', { 'Location': '/?e=1' });
     }
     if (u.pathname === '/logout') return send(res, 302, '', 'text/plain', { 'Set-Cookie': 'vxadm=; Path=/; Max-Age=0', 'Location': '/' });
@@ -102,6 +164,7 @@ const server = http.createServer(async (req, res) => {
       if (!authed(req)) return send(res, 401, '{"error":"auth"}', 'application/json');
       if (req.method === 'GET') return send(res, 200, JSON.stringify(content), 'application/json; charset=utf-8');
       if (req.method === 'POST') {
+        if (!sameOriginPost(req)) { logEvent('content POST BLOCKED (origin) ip=' + clientIP(req)); return send(res, 403, '{"error":"origin"}', 'application/json'); }
         const body = await readBody(req);
         let c;
         try { c = JSON.parse(body); } catch (e) { return send(res, 400, '{"error":"json"}', 'application/json'); }
@@ -129,9 +192,18 @@ const server = http.createServer(async (req, res) => {
           }
         }
         c.demos = cleanDemos;
+        // F-08 fix: sanitize faq + email like the other fields (was pass-through).
+        for (const f of c.faq) { f.q = String(f.q || '').slice(0, 200); f.a = String(f.a || '').slice(0, 1000); f.hidden = !!f.hidden; if (f.id !== undefined) f.id = String(f.id).slice(0, 40); }
+        c.email = String(c.email || '').slice(0, 120);
+        // F-08 fix: keep only allow-listed top-level keys; anything else is dropped.
+        const ALLOWED_KEYS = ['packs', 'whatsapp', 'email', 'projects', 'faq', 'homeProjects', 'texts', 'demos'];
+        const cleaned = {};
+        for (const k of ALLOWED_KEYS) if (c[k] !== undefined) cleaned[k] = c[k];
+        c = cleaned;
         content = c; persist();
         let mode = 'local';
-        try { mode = await commitToGitHub(); } catch (e) { mode = 'local'; }
+        try { mode = await commitToGitHub(); } catch (e) { mode = 'local'; logError('publish: github commit failed (' + e.message + '), saved locally only'); }
+        logEvent('publish ok mode=' + mode + ' ip=' + clientIP(req));
         return send(res, 200, JSON.stringify({ ok: true, mode }), 'application/json');
       }
     }
@@ -141,6 +213,7 @@ const server = http.createServer(async (req, res) => {
     }
     return send(res, 404, 'not found');
   } catch (e) {
+    logError('request error ' + req.method + ' ' + u.pathname + ': ' + (e && e.message));
     return send(res, 500, 'error');
   }
 });
